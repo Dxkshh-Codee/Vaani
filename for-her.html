@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>For You — A Letter That Never Left</title>
+<meta name="theme-color" content="#FFD6E0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Dancing+Script:wght@400;500;600&family=Great+Vibes&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg: #FFF6F8;
+  --bg-2:#FFE4EB;
+  --blush:#F8BBD0;
+  --blush-deep:#E8A0B8;
+  --rose:#D67A9E;
+  --rose-dark:#8B4A62;
+  --ink:#3D2230;
+  --ink-soft:#6B4A5A;
+  --ink-light:#9A7386;
+  --card:#FFFDFF;
+  --card-2:#FFF8FA;
+  --line: rgba(214,122,158,0.12);
+  --shadow: 0 8px 32px rgba(139,74,98,0.08), 0 2px 12px rgba(139,74,98,0.06);
+  --shadow-lg: 0 20px 60px rgba(139,74,98,0.12), 0 8px 24px rgba(139,74,98,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:12px}
+body{
+  font-family:'DM Sans',system-ui,-apple-system,sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit}
+
+/* progress */
+.progress-wrap{position:fixed;top:0;left:0;right:0;height:2px;z-index:100;background:rgba(255,255,255,0.6);backdrop-filter:blur(8px)}
+.progress-bar{height:100%;width:0%;background:linear-gradient(90deg,#F8BBD0,#D67A9E,#E8A0B8);transition:width 0.1s linear;box-shadow:0 0 8px rgba(214,122,158,0.4)}
+
+/* floating hearts container global */
+.hearts-layer{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.float-heart{position:absolute;bottom:-20px;font-size:14px;opacity:0;animation: floatUp linear forwards; filter: blur(0.2px)}
+@keyframes floatUp{
+  0%{transform:translateY(0) translateX(0) rotate(0deg) scale(0.8);opacity:0}
+  10%{opacity:0.7}
+  90%{opacity:0.4}
+  100%{transform:translateY(-110vh) translateX(var(--drift)) rotate(var(--rot)) scale(1.1);opacity:0}
+}
+
+/* music control */
+.music-btn{
+  position:fixed;top:16px;right:16px;z-index:90;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,0.85);backdrop-filter:blur(12px);
+  border:1px solid rgba(214,122,158,0.2);box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.3s ease;color:var(--rose-dark);
+  font-size:18px;
+}
+.music-btn:active{transform:scale(0.96)}
+.music-btn.playing{background:var(--blush);color:white;border-color:transparent}
+.music-hint{
+  position:fixed;top:66px;right:16px;z-index:90;
+  background:rgba(61,34,48,0.9);color:white;font-size:11px;padding:6px 10px;border-radius:20px;
+  letter-spacing:0.04em;opacity:0;transform:translateY(-4px);transition:all 0.3s;pointer-events:none;
+  backdrop-filter:blur(8px)
+}
+.music-hint.show{opacity:1;transform:translateY(0)}
+
+/* HERO / LANDING */
+.landing{
+  position:fixed;inset:0;z-index:50;
+  background: radial-gradient(120% 120% at 50% 0%, #FFF0F4 0%, #FFE4EB 35%, #FFD6E4 65%, #FFC2D4 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;text-align:center;
+  transition: opacity 0.9s cubic-bezier(0.4,0,0.2,1), transform 0.9s cubic-bezier(0.4,0,0.2,1), visibility 0.9s;
+  overflow:hidden;
+}
+.landing.hidden{opacity:0;transform:scale(1.02) translateY(-20px);visibility:hidden;pointer-events:none}
+.landing::before{
+  content:"";position:absolute;inset:0;
+  background:
+    radial-gradient(600px 400px at 20% 20%, rgba(255,255,255,0.6) 0%, transparent 60%),
+    radial-gradient(500px 500px at 80% 80%, rgba(248,187,208,0.5) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-orb{
+  position:absolute;width:520px;height:520px;border-radius:50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,228,235,0.4) 40%, transparent 70%);
+  top:50%;left:50%;transform:translate(-50%,-55%);filter:blur(1px);pointer-events:none;
+}
+.hero-hearts{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-hearts span{position:absolute;font-size:18px;opacity:0.5;animation:drift 8s ease-in-out infinite}
+.hero-hearts span:nth-child(1){top:18%;left:12%;animation-delay:0s;font-size:14px}
+.hero-hearts span:nth-child(2){top:22%;right:14%;animation-delay:1s;font-size:16px}
+.hero-hearts span:nth-child(3){top:65%;left:8%;animation-delay:2s;font-size:20px}
+.hero-hearts span:nth-child(4){top:70%;right:10%;animation-delay:0.5s;font-size:12px}
+.hero-hearts span:nth-child(5){top:45%;left:50%;animation-delay:1.5s;font-size:10px;opacity:0.3}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-14px) rotate(3deg)}}
+
+.landing-content{position:relative;z-index:2;max-width:360px;width:100%;display:flex;flex-direction:column;align-items:center}
+.eyebrow{
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:300;
+  font-size:12px;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-light);
+  margin-bottom:28px;opacity:0;animation: fadeUp 0.9s ease 0.2s forwards;
+}
+.hero-title{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-style:italic;
+  font-size:42px;line-height:1.05;color:var(--ink);
+  margin-bottom:18px;opacity:0;animation: fadeUp 0.9s ease 0.4s forwards;
+}
+.hero-title em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--rose);font-size:44px}
+.hero-sub{
+  font-size:15px;line-height:1.6;color:var(--ink-soft);font-weight:300;
+  margin-bottom:36px;opacity:0;animation: fadeUp 0.9s ease 0.6s forwards;
+}
+.open-btn{
+  appearance:none;border:none;cursor:pointer;
+  background:white;color:var(--rose-dark);
+  padding:16px 32px;border-radius:100px;
+  font-size:14px;letter-spacing:0.08em;text-transform:uppercase;font-weight:500;
+  box-shadow: 0 8px 24px rgba(214,122,158,0.25), 0 2px 8px rgba(0,0,0,0.04);
+  display:inline-flex;align-items:center;gap:10px;
+  transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  opacity:0;animation: fadeUp 0.9s ease 0.8s forwards;
+  border:1px solid rgba(214,122,158,0.15);
+}
+.open-btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 12px 32px rgba(214,122,158,0.32)}
+.open-btn:active{transform:scale(0.98)}
+.open-btn span{font-size:16px;transition:transform 0.4s}
+.open-btn:hover span{transform:scale(1.2)}
+.landing-footnote{
+  margin-top:28px;font-family:'Dancing Script',cursive;font-size:13px;color:var(--ink-light);opacity:0;animation: fadeUp 0.9s ease 1s forwards;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* MAIN WRAP */
+.main{max-width:430px;margin:0 auto;padding:0 20px 0;position:relative;z-index:2}
+@media (min-width:600px){.main{max-width:420px}}
+
+/* sections */
+section{padding:56px 0 32px;position:relative}
+.reveal{opacity:0;transform:translateY(24px);transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:0.1s}
+.reveal-delay-2{transition-delay:0.2s}
+.reveal-delay-3{transition-delay:0.3s}
+
+.label{
+  font-size:10px;letter-spacing:0.18em;text-transform:uppercase;color:var(--rose);
+  font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:10px;
+}
+.label::before{content:"";width:24px;height:1px;background:var(--blush);display:block}
+.section-title{
+  font-family:'Cormorant Garamond',serif;font-weight:400;font-size:32px;line-height:1.15;color:var(--ink);
+  margin-bottom:12px;
+}
+.section-title em{font-style:italic;font-weight:300;color:var(--rose)}
+.section-desc{font-size:14.5px;line-height:1.75;color:var(--ink-soft);font-weight:300}
+
+/* timeline */
+.timeline{margin-top:36px;position:relative;padding-left:20px}
+.timeline::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:linear-gradient(to bottom, var(--blush), transparent);opacity:0.6}
+.t-item{position:relative;padding-bottom:32px}
+.t-item:last-child{padding-bottom:0}
+.t-dot{
+  position:absolute;left:-20px;top:4px;width:13px;height:13px;border-radius:50%;
+  background:white;border:2px solid var(--blush);box-shadow:0 0 0 4px rgba(248,187,208,0.2);
+  display:flex;align-items:center;justify-content:center;
+}
+.t-dot::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--rose)}
+.t-date{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--rose);font-weight:500;margin-bottom:6px}
+.t-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;line-height:1.4;color:var(--ink)}
+.t-sub{font-size:13px;color:var(--ink-light);margin-top:6px;line-height:1.6;font-weight:300}
+
+/* petal divider */
+.divider{display:flex;align-items:center;justify-content:center;gap:12px;padding:18px 0;opacity:0.7}
+.divider::before,.divider::after{content:"";height:1px;flex:1;background:linear-gradient(90deg, transparent, var(--blush), transparent);opacity:0.5}
+.divider span{font-size:12px;color:var(--blush-deep)}
+
+/* card typing */
+.glass-card{
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.9);
+  border-radius:24px;padding:32px 24px;
+  box-shadow:var(--shadow-lg);
+  position:relative;overflow:hidden;
+}
+.glass-card::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent)
+}
+.quote-mark{
+  font-family:'Instrument Serif',serif;font-size:48px;line-height:1;color:var(--blush);opacity:0.6;margin-bottom:4px;
+}
+.typing-text{font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.8;color:var(--ink);font-weight:400;min-height:180px}
+.typing-text p{margin-bottom:14px}
+.typing-text p:last-child{margin-bottom:0}
+.cursor{display:inline-block;width:2px;height:1.1em;background:var(--rose);margin-left:2px;vertical-align:text-bottom;animation: blink 0.9s infinite}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+.hand-note{font-family:'Dancing Script',cursive;font-size:13px;color:var(--ink-light);margin-top:20px;text-align:right;opacity:0.8}
+
+/* you said */
+.yousaid-wrap{
+  background:linear-gradient(180deg, #FFF8FA 0%, #FFF0F4 100%);
+  border-radius:28px;padding:36px 24px;border:1px solid rgba(248,187,208,0.25);
+  box-shadow:var(--shadow);position:relative;overflow:hidden;
+}
+.yousaid-wrap::after{
+  content:"♡";position:absolute;right:18px;top:18px;font-size:64px;color:var(--blush);opacity:0.12;
+  font-family:'Instrument Serif',serif;
+}
+.ys-line{font-size:15px;line-height:1.75;color:var(--ink-soft);font-weight:300;margin-bottom:14px}
+.ys-line strong{color:var(--ink);font-weight:500}
+.ys-emph{
+  margin-top:20px;padding:16px 18px;background:white;border-radius:16px;
+  border-left:3px solid var(--blush);box-shadow:0 4px 16px rgba(139,74,98,0.06);
+  font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;line-height:1.6;color:var(--rose-dark);
+}
+
+/* what i still believe */
+.believe{
+  margin:12px -20px;padding:56px 24px;
+  background:
+    radial-gradient(400px 300px at 30% 20%, rgba(255,255,255,0.7) 0%, transparent 60%),
+    radial-gradient(500px 400px at 80% 80%, rgba(255,182,193,0.3) 0%, transparent 60%),
+    linear-gradient(180deg, #FFE4EB 0%, #FFD6E4 50%, #FFC8DB 100%);
+  text-align:center;position:relative;overflow:hidden;
+}
+.believe-heart{
+  width:88px;height:88px;margin:0 auto 24px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+}
+.believe-heart .heart-bg{
+  position:absolute;inset:0;background:white;border-radius:50%;
+  box-shadow:0 8px 24px rgba(214,122,158,0.25), 0 2px 8px rgba(0,0,0,0.04);
+  animation: pulse 2.8s ease-in-out infinite;
+}
+.believe-heart span{position:relative;font-size:36px;animation: heartbeat 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes heartbeat{0%,100%{transform:scale(1)}15%{transform:scale(1.12)}30%{transform:scale(0.96)}45%{transform:scale(1.08)}}
+.believe h2{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:26px;line-height:1.35;color:var(--ink);
+  max-width:320px;margin:0 auto;
+}
+.believe h2 em{font-style:italic;color:var(--rose)}
+.believe-lines{margin-top:24px;display:flex;flex-direction:column;gap:12px;max-width:320px;margin-left:auto;margin-right:auto}
+.believe-line{font-size:14.5px;line-height:1.6;color:var(--ink-soft);font-weight:300}
+.believe-foot{margin-top:28px;font-family:'Dancing Script',cursive;font-size:16px;color:var(--rose-dark);opacity:0.9}
+
+/* if someday - darker */
+.someday{
+  margin:0 -20px;padding:56px 24px 48px;
+  background:
+    radial-gradient(300px 300px at 20% 10%, rgba(255,255,255,0.25) 0%, transparent 60%),
+    radial-gradient(600px 500px at 80% 90%, rgba(0,0,0,0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #F4A9C0 0%, #E493AD 40%, #D67A9E 100%);
+  color:white;position:relative;overflow:hidden;text-align:center;
+}
+.someday::before{
+  content:"";position:absolute;inset:0;
+  background: radial-gradient(2px 2px at 20% 30%, white 0%, transparent 100%),
+              radial-gradient(1.5px 1.5px at 60% 20%, white 0%, transparent 100%),
+              radial-gradient(1.2px 1.2px at 80% 60%, white 0%, transparent 100%),
+              radial-gradient(1px 1px at 40% 80%, white 0%, transparent 100%);
+  opacity:0.5;animation: twinkle 4s ease-in-out infinite alternate;
+}
+@keyframes twinkle{0%{opacity:0.3}100%{opacity:0.7}}
+.someday .label{color:rgba(255,255,255,0.85);justify-content:center}
+.someday .label::before,.someday .label::after{content:"";width:18px;height:1px;background:rgba(255,255,255,0.4);display:block}
+.someday h2{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;line-height:1.3;color:white;position:relative;z-index:1;
+}
+.someday h2 i{font-style:italic;font-weight:400;opacity:0.95}
+.someday p{
+  font-size:14.5px;line-height:1.75;color:rgba(255,255,255,0.92);font-weight:300;
+  max-width:340px;margin:14px auto 0;position:relative;z-index:1;
+}
+.someday .soft{opacity:0.9;font-size:13.5px}
+.someday .glow-card{
+  margin-top:28px;background:rgba(255,255,255,0.14);backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.22);border-radius:20px;padding:20px;
+  max-width:340px;margin-left:auto;margin-right:auto;position:relative;z-index:1;
+  box-shadow:0 8px 32px rgba(0,0,0,0.12);
+}
+.glow-card p{margin:0;font-size:14px}
+
+/* gallery */
+.gallery-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:18px}
+.gallery-head p{font-size:13px;color:var(--ink-light);font-weight:300}
+.scroll-hint{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--rose);display:flex;align-items:center;gap:6px}
+.gallery-track{
+  display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;
+  padding:6px 20px 20px;margin:0 -20px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+.gallery-track::-webkit-scrollbar{display:none}
+.g-card{
+  flex:0 0 240px;scroll-snap-align:start;
+  background:white;border-radius:20px;overflow:hidden;
+  box-shadow:var(--shadow);border:1px solid rgba(248,187,208,0.2);
+  transition:transform 0.3s ease, box-shadow 0.3s ease;
+}
+.g-card:active{transform:scale(0.98)}
+.g-img{
+  height:260px;background:linear-gradient(135deg, #FFE4EB 0%, #FFD6E4 50%, #F8BBD0 100%);
+  position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;
+}
+.g-img::before{
+  content:"";position:absolute;inset:0;
+  background: radial-gradient(200px 200px at 30% 20%, rgba(255,255,255,0.6) 0%, transparent 60%);
+}
+.g-img .ph{
+  position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--rose-dark);opacity:0.5;
+}
+.g-img .ph span:first-child{font-size:42px}
+.g-img .ph span:last-child{font-size:11px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500}
+.g-card img{width:100%;height:100%;object-fit:cover;display:block}
+.g-caption{padding:14px 16px 16px}
+.g-caption p{font-family:'Dancing Script',cursive;font-size:14px;color:var(--ink-soft);line-height:1.4}
+.g-caption small{font-size:10px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink-light);display:block;margin-top:4px}
+
+/* letter */
+.letter{
+  background: var(--card);
+  border-radius:24px;
+  box-shadow:var(--shadow-lg);
+  border:1px solid rgba(248,187,208,0.2);
+  overflow:hidden;position:relative;
+}
+.letter::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:4px;
+  background:linear-gradient(90deg, #F8BBD0, #E8A0B8, #F8BBD0);
+  opacity:0.6;
+}
+.letter-head{
+  padding:32px 24px 0;text-align:center;
+  background: linear-gradient(180deg, #FFF8FA 0%, white 100%);
+  border-bottom:1px dashed rgba(214,122,158,0.15);
+  padding-bottom:24px;
+}
+.letter-head h3{
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:8px;
+}
+.letter-head h3 em{font-style:italic;color:var(--rose)}
+.letter-head p{font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-light)}
+.letter-body{padding:28px 24px 32px}
+.letter-body p{
+  font-size:14.5px;line-height:1.85;color:var(--ink-soft);font-weight:300;margin-bottom:16px;
+}
+.letter-body p:last-child{margin-bottom:0}
+.letter-body strong{color:var(--ink);font-weight:500}
+.letter-body .hi{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:var(--ink)}
+.letter-sign{
+  margin-top:8px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;flex-direction:column;gap:4px;
+}
+.letter-sign .hand{font-family:'Great Vibes',cursive;font-size:28px;color:var(--rose-dark);line-height:1}
+.letter-sign .name{font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-light);margin-top:2px}
+.paper-lines{
+  position:absolute;left:0;top:80px;bottom:0;width:100%;pointer-events:none;opacity:0.03;
+  background: repeating-linear-gradient(to bottom, transparent 0px, transparent 27px, var(--rose) 28px);
+}
+
+/* final */
+.final{text-align:center;padding:64px 0 40px}
+.final h2{
+  font-family:'Cormorant Garamond',serif;font-weight:300;font-size:30px;line-height:1.3;color:var(--ink);max-width:320px;margin:0 auto;
+}
+.final h2 em{font-style:italic;color:var(--rose)}
+.final .pause{width:40px;height:1px;background:var(--blush);margin:24px auto;opacity:0.6}
+.final p{font-size:14.5px;line-height:1.7;color:var(--ink-soft);font-weight:300;max-width:300px;margin:0 auto}
+.final-hand{margin-top:32px;font-family:'Great Vibes',cursive;font-size:30px;color:var(--rose-dark)}
+.final-initial{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-light);margin-top:6px}
+.replay-btn{
+  margin:36px auto 0;display:inline-flex;align-items:center;gap:8px;
+  background:white;border:1px solid rgba(214,122,158,0.2);padding:12px 22px;border-radius:100px;
+  font-size:12px;letter-spacing:0.1em;text-transform:uppercase;color:var(--rose-dark);font-weight:500;
+  box-shadow:var(--shadow);cursor:pointer;transition:all 0.3s;
+}
+.replay-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(214,122,158,0.18)}
+.footer-note{
+  text-align:center;padding:24px 20px 40px;
+  font-size:11px;letter-spacing:0.06em;color:var(--ink-light);opacity:0.7;line-height:1.6;
+}
+.footer-note span{color:var(--rose)}
+
+/* responsive tweaks */
+@media (max-width:360px){
+  .hero-title{font-size:36px}
+  .section-title{font-size:28px}
+  .g-card{flex:0 0 220px}
+}
+</style>
+</head>
+<body>
+
+<div class="progress-wrap"><div class="progress-bar" id="progress"></div></div>
+<div class="hearts-layer" id="heartsLayer"></div>
+
+<button class="music-btn" id="musicBtn" aria-label="Toggle music" title="Sound">♪</button>
+<div class="music-hint" id="musicHint">sound on ♡</div>
+<audio id="bgAudio" loop preload="none">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_970a9e8816.mp3?filename=romantic-piano-loop-112199.mp3" type="audio/mpeg">
+</audio>
+
+<!-- LANDING -->
+<div class="landing" id="landing">
+  <div class="hero-orb"></div>
+  <div class="hero-hearts"><span>♡</span><span>♡</span><span>♡</span><span>♡</span><span>·</span></div>
+  <div class="landing-content">
+    <div class="eyebrow">a little letter, for you</div>
+    <h1 class="hero-title">Some stories<br><em>don't really end...</em></h1>
+    <p class="hero-sub">Sometimes, they just become a chapter<br>we don't know how to close.</p>
+    <button class="open-btn" id="openBtn">Open my heart <span>♡</span></button>
+    <div class="landing-footnote">take your time — no rush ♡</div>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main" id="mainContent">
+
+  <section id="whatithought">
+    <div class="reveal">
+      <div class="label">Chapter 01</div>
+      <h2 class="section-title">What I <em>thought</em></h2>
+      <p class="section-desc">When we said goodbye in January, a part of me honestly believed it wasn't forever. I thought it was just a pause — that we'd both breathe, grow a little, understand each other and ourselves a little better, and maybe… find our way back when the time was right.</p>
+      <p class="section-desc" style="margin-top:12px">It didn't feel dramatic then. It just felt hopeful. Quietly hopeful.</p>
+    </div>
+
+    <div class="timeline reveal reveal-delay-1">
+      <div class="t-item">
+        <div class="t-dot"></div>
+        <div class="t-date">January 2026</div>
+        <div class="t-text">“We said goodbye.”</div>
+        <div class="t-sub">Not because the feelings ran out — but because we didn't know how to hold them gently anymore.</div>
+      </div>
+      <div class="t-item">
+        <div class="t-dot"></div>
+        <div class="t-date">Right after</div>
+        <div class="t-text">“I thought it was only goodbye for now.”</div>
+        <div class="t-sub">I kept telling myself we'd both heal, learn, soften — and that life might be kinder to us the second time around.</div>
+      </div>
+      <div class="t-item">
+        <div class="t-dot"></div>
+        <div class="t-date">Months later — now</div>
+        <div class="t-text">“Months passed, and somehow, I still found pieces of you everywhere.”</div>
+        <div class="t-sub">In songs I couldn't skip. In places we never went again. In the quiet moments when I wasn't trying to remember — and did anyway.</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><span>♡</span></div>
+
+  <section id="couldnt">
+    <div class="reveal">
+      <div class="label">Chapter 02</div>
+      <h2 class="section-title">What I <em>couldn't do</em></h2>
+    </div>
+    <div class="glass-card reveal reveal-delay-1" style="margin-top:20px">
+      <div class="quote-mark">“</div>
+      <div class="typing-text" id="typingText"></div>
+      <div class="hand-note">— still learning ♡</div>
+    </div>
+  </section>
+
+  <section id="yousaid">
+    <div class="reveal">
+      <div class="label">Chapter 03</div>
+      <h2 class="section-title">You <em>said...</em></h2>
+    </div>
+    <div class="yousaid-wrap reveal reveal-delay-1" style="margin-top:20px">
+      <p class="ys-line">You told me that <strong>you feel like you can't be fixed right now.</strong></p>
+      <p class="ys-line">Maybe you need time.<br>Maybe you need space.<br>Maybe you need to find yourself again — without carrying us along.</p>
+      <p class="ys-line">And even though a part of me wishes I could make it easier for you, I know I can't.</p>
+      <p class="ys-line" style="color:var(--ink);font-weight:400">I can't heal you for you.</p>
+      <div class="ys-emph">I can only work on myself and hope that someday, if our paths meet again, you'll see that I tried to become better too.</div>
+      <div style="margin-top:16px;font-family:'Dancing Script',cursive;font-size:13px;color:var(--ink-light);text-align:right">i hear you. i respect that. ♡</div>
+    </div>
+  </section>
+
+  <section class="believe reveal" id="believe">
+    <div class="believe-heart"><div class="heart-bg"></div><span>♡</span></div>
+    <h2> I still believe <em>people can change.</em></h2>
+    <div class="believe-lines">
+      <p class="believe-line">I still believe two people can grow — separately, quietly, honestly.</p>
+      <p class="believe-line">And I still believe that sometimes love deserves another chance — not because the past should be repeated, but because two people can become different versions of themselves.</p>
+    </div>
+    <div class="believe-foot">I don't know what the future holds. I just know I haven't stopped hoping.</div>
+  </section>
+
+  <section class="someday reveal" id="someday">
+    <div class="label">THE HEART OF IT</div>
+    <h2>If someday <i>you look back</i><br>at us...</h2>
+    <p>and wonder whether we could have been different,</p>
+    <p class="soft">I hope you remember that there was someone who never stopped wishing that things could have been better.</p>
+    <div class="glow-card">
+      <p>Not because I expect you to come back.</p>
+      <p style="margin-top:8px;opacity:0.9">Not because I want you to owe me anything.</p>
+      <p style="margin-top:8px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:white">Just because what we had mattered to me.</p>
+    </div>
+    <p style="margin-top:28px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:17px;color:white">And if someday our paths somehow meet again,<br><span style="font-weight:500">I hope we meet as better versions of ourselves.</span></p>
+  </section>
+
+  <section id="memories">
+    <div class="reveal">
+      <div class="gallery-head">
+        <div>
+          <div class="label" style="margin-bottom:8px">Chapter 06</div>
+          <h2 class="section-title" style="font-size:26px">Memories</h2>
+          <p>soft pieces of before —</p>
+        </div>
+        <div class="scroll-hint">scroll →</div>
+      </div>
+    </div>
+    <div class="gallery-track reveal reveal-delay-1" id="gallery">
+      <div class="g-card">
+        <div class="g-img">
+          <div class="ph"><span>◯</span><span>Our photo 1</span></div>
+        </div>
+        <div class="g-caption"><p>One of my favorite days.</p><small>replace with your photo</small></div>
+      </div>
+      <div class="g-card">
+        <div class="g-img" style="background:linear-gradient(135deg,#FFD6E4 0%,#FFC2D4 60%,#F8BBD0 100%)">
+          <div class="ph"><span>♡</span><span>Our photo 2</span></div>
+        </div>
+        <div class="g-caption"><p>I wish I could pause this moment.</p><small>still feels close</small></div>
+      </div>
+      <div class="g-card">
+        <div class="g-img" style="background:linear-gradient(135deg,#FFE4EB 0%,#F8BBD0 70%,#E8A0B8 100%)">
+          <div class="ph"><span>✦</span><span>Our photo 3</span></div>
+        </div>
+        <div class="g-caption"><p>Some memories never really become old.</p><small>they just soften</small></div>
+      </div>
+      <div class="g-card">
+        <div class="g-img" style="background:linear-gradient(135deg,#FFF0F4 0%,#FFD6E4 50%,#F4A9C0 100%)">
+          <div class="ph"><span>~</span><span>Our photo 4</span></div>
+        </div>
+        <div class="g-caption"><p>Still one of the softest parts of my past.</p><small>and I’m grateful for it</small></div>
+      </div>
+    </div>
+    <p class="reveal" style="text-align:center;font-family:'Dancing Script',cursive;font-size:12px;color:var(--ink-light);margin-top:10px">tap a card to feel it ♡ — replace the placeholders with your real photos</p>
+  </section>
+
+  <section id="letter">
+    <div class="reveal">
+      <div class="label">Chapter 07</div>
+      <h2 class="section-title">A letter <em>I never knew</em><br>how to say.</h2>
+      <p class="section-desc" style="margin-top:8px">Not demanding anything. Just… finally saying it honestly.</p>
+    </div>
+    <div class="letter reveal reveal-delay-1" style="margin-top:22px">
+      <div class="paper-lines"></div>
+      <div class="letter-head">
+        <h3>A letter I <em>never sent</em></h3>
+        <p>written slowly, over months —</p>
+      </div>
+      <div class="letter-body">
+        <p class="hi">Hey,</p>
+        <p>I don't really know how to start this without sounding like I'm trying too hard. So I'll just be honest.</p>
+        <p>I miss you. Not in the loud, dramatic way. In the quiet, everyday way — like reaching for something that used to be there without thinking.</p>
+        <p>I think about us a lot. Not just the good days, but all of it. The laughs, the late talks, the small things that felt so ordinary then and feel so precious now. And also the parts where I didn't show up the way I should have.</p>
+        <p>There are things I wish I had done differently. Times I was too stubborn, too careless with your feelings, too busy defending myself to really hear you. I’ve had a lot of time to sit with that. Not to blame myself endlessly — but to understand it. And to want to be better.</p>
+        <p>When you said you feel like you can't be fixed right now, I heard you. I didn't argue in my head. I just... felt it. I know you need your own time, your own space, your own way back to yourself. And I respect that more than I can say. You don't owe me closeness while you're trying to find your steadiness again.</p>
+        <p>I can't heal you. I know that now. I can only work on me — become calmer, kinder, more patient. More someone you'd feel safe with, if life ever lets us try again. Not performing change, just actually doing it, quietly.</p>
+        <p>I'm not writing this to ask you to come back. I'm not expecting a reply, and I don't want you to feel any pressure from this. I just wanted you to know that you mattered to me — deeply — and that a part of me still cares in that soft, steady way that doesn't demand anything.</p>
+        <p>Whatever you're doing now, wherever you are, I hope life is treating you gently. I hope you're sleeping well, laughing honestly, and giving yourself the grace you always gave others. You deserve that.</p>
+        <p>If our story is done, then I'll carry it with gratitude. If someday, somewhere down the line, we both feel ready to see what we could be now — I'd be open to that with all my heart. No expectations. No keeping score. Just two people meeting again, a little wiser.</p>
+        <p>Until then, no pressure. No waiting that asks anything of you. Just… me, here, wishing you well and remembering us kindly.</p>
+        <div class="letter-sign">
+          <span style="font-size:13px;color:var(--ink-soft);font-weight:300;line-height:1.6">Always wishing you well,</span>
+          <span class="hand">Take care of yourself ♡</span>
+          <span class="name">— D</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final reveal" id="final">
+    <h2>I don't know where<br><em>our story goes</em><br>from here.</h2>
+    <div class="pause"></div>
+    <p>But I'll always be grateful that, for a while,<br>our paths crossed.</p>
+    <div class="final-hand">Take care of yourself. ♡</div>
+    <div class="final-initial">— D</div>
+    <button class="replay-btn" id="replayBtn">↻ replay from start</button>
+    <div style="margin-top:18px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11px;color:var(--ink-light);background:white;padding:6px 12px;border-radius:100px;border:1px solid rgba(214,122,158,0.15)">made with ♡, not pressure</span>
+      <span style="font-size:11px;color:var(--ink-light);background:white;padding:6px 12px;border-radius:100px;border:1px solid rgba(214,122,158,0.15)">no tracking · just feelings</span>
+    </div>
+  </section>
+
+  <div class="footer-note">
+    If you made it to the end, thank you for reading.<br>
+    You can close this whenever you want — <span>it will still be here if you ever want to revisit it.</span>
+  </div>
+
+</div>
+
+<script>
+const landing = document.getElementById('landing');
+const openBtn = document.getElementById('openBtn');
+const replayBtn = document.getElementById('replayBtn');
+const progress = document.getElementById('progress');
+const heartsLayer = document.getElementById('heartsLayer');
+const musicBtn = document.getElementById('musicBtn');
+const musicHint = document.getElementById('musicHint');
+const audio = document.getElementById('bgAudio');
+
+// landing transition
+function openHeart(){
+  landing.classList.add('hidden');
+  document.body.style.overflow = '';
+  // reveal first section typing shortly after
+  setTimeout(startTyping, 700);
+  // gentle scroll to first section if needed
+  setTimeout(()=>{ document.getElementById('whatithought')?.scrollIntoView({behavior:'smooth',block:'start'}); }, 900);
+}
+openBtn.addEventListener('click', openHeart);
+replayBtn.addEventListener('click', ()=>{
+  window.scrollTo({top:0, behavior:'smooth'});
+  setTimeout(()=>{
+    landing.classList.remove('hidden');
+    // reset typing
+    typed=false; document.getElementById('typingText').innerHTML='';
+  }, 600);
+});
+
+// allow Enter/Space on landing
+document.addEventListener('keydown', e=>{
+  if(!landing.classList.contains('hidden') && (e.key==='Enter'||e.key===' ')){
+    openHeart();
+  }
+});
+
+// auto-hide landing if user scrolls? keep manual.
+
+// progress
+function onScroll(){
+  const h = document.documentElement;
+  const scrolled = h.scrollTop / (h.scrollHeight - h.clientHeight);
+  progress.style.width = (scrolled*100)+'%';
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+
+// reveal on scroll
+const ro = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) e.target.classList.add('in');
+  });
+},{threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.reveal').forEach(el=> ro.observe(el));
+
+// typing animation
+const lines = [
+  "I tried to understand what moving on was supposed to feel like.",
+  "",
+  "But honestly, I never really learned how.",
+  "",
+  "People say time changes everything. Maybe they're right.",
+  "",
+  "But time hasn't made me care about you less.",
+  "",
+  "It has only taught me how to carry the feeling quietly."
+];
+let typed=false;
+let typeTimeout;
+function startTyping(){
+  if(typed) return;
+  // only start if section in view
+  const el = document.getElementById('typingText');
+  if(!el) return;
+  typed=true;
+  el.innerHTML='';
+  let lineIdx=0, charIdx=0;
+  let currentP = document.createElement('p');
+  el.appendChild(currentP);
+  let cursor = document.createElement('span');
+  cursor.className='cursor';
+  currentP.appendChild(cursor);
+
+  function type(){
+    if(lineIdx >= lines.length){
+      cursor.remove();
+      return;
+    }
+    const line = lines[lineIdx];
+    if(line===""){
+      // empty line -> new paragraph
+      currentP = document.createElement('p');
+      currentP.style.marginBottom='2px';
+      currentP.innerHTML='<br>';
+      el.insertBefore(currentP, cursor.parentElement?.nextSibling || null);
+      // move cursor
+      cursor.remove();
+      currentP = document.createElement('p');
+      el.appendChild(currentP);
+      currentP.appendChild(cursor);
+      lineIdx++; charIdx=0;
+      typeTimeout = setTimeout(type, 220);
+      return;
+    }
+    if(charIdx < line.length){
+      const ch = line[charIdx];
+      cursor.insertAdjacentText('beforebegin', ch);
+      charIdx++;
+      typeTimeout = setTimeout(type, 22 + Math.random()*28);
+    } else {
+      // line done
+      cursor.remove();
+      lineIdx++; charIdx=0;
+      if(lineIdx < lines.length){
+        // if next is not empty, create new p
+        if(lines[lineIdx]!==""){
+          currentP = document.createElement('p');
+          el.appendChild(currentP);
+          currentP.appendChild(cursor);
+        }
+        typeTimeout = setTimeout(type, 320);
+      } else {
+        // done
+      }
+    }
+  }
+  type();
+}
+// also trigger typing when section visible even if landing skipped
+const typingObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting && !typed && landing.classList.contains('hidden')){
+      startTyping();
+    }
+  });
+},{threshold:0.4});
+typingObserver.observe(document.getElementById('couldnt'));
+
+// floating hearts
+const heartChars = ['♡','♥','·','♡','♥'];
+function spawnHeart(){
+  if(document.hidden) return;
+  const el=document.createElement('div');
+  el.className='float-heart';
+  const left = Math.random()*100;
+  const size = 10 + Math.random()*14;
+  const duration = 7 + Math.random()*7;
+  const drift = (Math.random()-0.5)*120 + 'px';
+  const rot = (Math.random()-0.5)*40 + 'deg';
+  const ch = heartChars[Math.floor(Math.random()*heartChars.length)];
+  const opacity = ch==='·' ? 0.25 : 0.35;
+  el.textContent = ch;
+  el.style.left = left+'vw';
+  el.style.fontSize = size+'px';
+  el.style.setProperty('--drift', drift);
+  el.style.setProperty('--rot', rot);
+  el.style.animationDuration = duration+'s';
+  el.style.color = ch==='·' ? '#E8A0B8' : (Math.random()>0.5 ? '#E8A0B8' : '#F4A9C0');
+  el.style.opacity = opacity;
+  heartsLayer.appendChild(el);
+  setTimeout(()=> el.remove(), duration*1000);
+}
+setInterval(spawnHeart, 650);
+for(let i=0;i<6;i++) setTimeout(spawnHeart, i*400);
+
+// music
+let isPlaying=false;
+let hintTimeout;
+function showHint(msg){
+  musicHint.textContent=msg;
+  musicHint.classList.add('show');
+  clearTimeout(hintTimeout);
+  hintTimeout=setTimeout(()=> musicHint.classList.remove('show'), 2200);
+}
+musicBtn.addEventListener('click', async ()=>{
+  if(!isPlaying){
+    try{
+      audio.volume=0.45;
+      await audio.play();
+      isPlaying=true;
+      musicBtn.classList.add('playing');
+      musicBtn.textContent='♫';
+      showHint('sound on ♡');
+    }catch(e){
+      showHint('tap again to allow sound ♡');
+      // fallback: WebAudio beep to indicate interaction
+      try{
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o=ctx.createOscillator(); const g=ctx.createGain();
+        o.frequency.value=220; g.gain.value=0.04;
+        o.connect(g); g.connect(ctx.destination); o.start();
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+1.2);
+        setTimeout(()=>{o.stop(); ctx.close();},1300);
+        musicBtn.classList.add('playing');
+        musicBtn.textContent='♫';
+        isPlaying=false;
+        showHint('music not available — but the quiet is soft too ♡');
+      }catch{}
+    }
+  } else {
+    audio.pause();
+    isPlaying=false;
+    musicBtn.classList.remove('playing');
+    musicBtn.textContent='♪';
+    showHint('sound off');
+  }
+});
+// hint on first open
+setTimeout(()=> showHint('tap ♪ for soft music'), 2800);
+
+// gallery tap effect
+document.querySelectorAll('.g-card').forEach(c=>{
+  c.addEventListener('click', ()=>{
+    c.style.transform='scale(0.97)';
+    setTimeout(()=> c.style.transform='', 180);
+  });
+});
+
+// gentle parallax for hero orb on mouse/touch
+let ticking=false;
+window.addEventListener('scroll', ()=>{
+  if(ticking) return;
+  ticking=true;
+  requestAnimationFrame(()=>{
+    const y = window.scrollY * 0.12;
+    document.querySelectorAll('.believe,.someday').forEach(el=>{
+      el.style.backgroundPositionY = y+'px';
+    });
+    ticking=false;
+  });
+}, {passive:true});
+
+// prevent horizontal overflow on load
+onScroll();
+
+// if user came via # hash, open directly
+if(location.hash){
+  landing.classList.add('hidden');
+  setTimeout(startTyping, 500);
+}
+</script>
+</body>
+</html>
